@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vibe Trader wireframes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Inter", "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif; background: #e9e9ec; color: #1d1d22; }
+  .screen { width: 1280px; height: 800px; background: #fafafa; margin: 0 auto 40px; position: relative; overflow: hidden; border: 1px solid #ccc; }
+  .title-bar { position: absolute; top: 0; left: 0; right: 0; height: 30px; background: #2b2b33; color: #fff; font-size: 13px; display: flex; align-items: center; padding: 0 14px; gap: 10px; }
+  .title-bar b { color: #ffd166; }
+  .app { position: absolute; top: 30px; left: 0; right: 0; bottom: 0; padding: 18px 28px; }
+
+  /* header */
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 52px; border-bottom: 2px solid #ddd; margin-bottom: 18px; }
+  .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
+  .logo span { color: #888; font-weight: 500; font-size: 14px; margin-left: 10px; }
+
+  .box { border: 2px solid #bbb; border-radius: 10px; background: #fff; position: relative; }
+  .box.p1 { border-style: dashed; border-color: #999; background: #fcfcfd; }
+  .tag { position: absolute; top: -11px; left: 10px; background: #e63946; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; z-index: 2; }
+  .tag.d { background: #1d6fe0; }
+  .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 700; margin-bottom: 8px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 700; font-size: 15px; padding: 10px 20px; }
+  .btn.primary { background: #111; color: #fff; }
+  .chip { display: inline-block; border: 1.5px dashed #999; border-radius: 999px; padding: 6px 12px; font-size: 13px; color: #444; margin-right: 8px; background: #f4f4f6; }
+  .select { border: 2px solid #ccc; border-radius: 8px; padding: 8px 12px; font-size: 14px; color: #444; background: #fff; min-width: 110px; }
+
+  /* verdict colours */
+  .green { color: #1a8f4c; } .yellow { color: #b88a00; } .red { color: #d62828; }
+  .bg-green { background: #e5f6ec; border-color: #1a8f4c; }
+  .bg-yellow { background: #fff6d6; border-color: #e0b100; }
+  .bg-red { background: #fde8e8; border-color: #d62828; }
+
+  .legend { position: absolute; bottom: 10px; right: 16px; font-size: 11px; color: #555; display: flex; gap: 12px; align-items: center; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 4px; vertical-align: -2px; }
+  .legend i.dash { background: #fff; border: 1.5px dashed #999; }
+</style>
+</head>
+<body>
+
+<!-- ========================= SCREEN 1 : BUILD ========================= -->
+<div class="screen" id="s1">
+  <div class="title-bar"><b>①</b> 生成页 Build — 用户输入策略 → 解析 → 规则卡片确认（MVP：只读规则，无澄清问题）</div>
+  <div class="app">
+    <div class="nav">
+      <div class="logo">VibeTrader <span>The backtester that tells you the truth</span></div>
+    </div>
+
+    <!-- prompt -->
+    <div class="box" style="padding:18px 20px; height:190px;">
+      <div class="tag">C · PromptInput 策略输入框</div>
+      <div class="label">Describe your strategy</div>
+      <div style="border:2px solid #ccc; border-radius:8px; height:70px; padding:10px 12px; font-size:16px; color:#333;">
+        Buy when price is unusually low compared to normal, sell when it recovers<span style="border-left:2px solid #111; margin-left:2px;">&nbsp;</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+        <div style="position:relative;">
+          <span class="tag" style="top:-20px; left:0;">C · 预设按钮 PresetChips（3 个）</span>
+          <span class="chip">🎯 Buy the dip</span><span class="chip">📅 RSI on Tuesdays</span><span class="chip">📈 200-day trend</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; position:relative;">
+          <span class="tag" style="top:-20px; left:0;">C · 资产 AssetSelect（BTC / SPY，固定 1d）</span>
+          <span class="select">BTC ▾</span>
+          <span class="btn primary">Parse →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- support banner -->
+    <div class="box bg-yellow" style="margin-top:22px; padding:12px 18px;">
+      <div class="tag">C · SupportBanner（supported / approximated / unsupported，纯文字）</div>
+      <div style="font-size:15px;"><b class="yellow">⚠ Approximated</b> &nbsp;“Unusually low” is ambiguous — we'll use a <b>20-day z-score below −2</b>. Not the full-history mean (that would leak the future).</div>
+    </div>
+
+    <!-- rule cards -->
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:18px; margin-top:22px;">
+      <div class="box" style="padding:16px; height:180px;">
+        <div class="tag">C · RuleCard 入场（只读）</div>
+        <div class="label">Entry</div>
+        <div style="font-size:16px; line-height:1.7;">• z-score(close, 20) &lt; −2<br>• position = 100% long</div>
+      </div>
+      <div class="box" style="padding:16px; height:180px;">
+        <div class="tag">C · RuleCard 出场（只读）</div>
+        <div class="label">Exit</div>
+        <div style="font-size:16px; line-height:1.7;">• z-score(close, 20) &gt; 0<br>• or stop-loss −5%</div>
+      </div>
+      <div class="box" style="padding:16px; height:180px;">
+        <div class="tag">C · RuleCard 参数（只读）</div>
+        <div class="label">Params</div>
+        <div style="font-size:16px; line-height:1.7;">lookback = 20 days<br>threshold = −2.0<br>fees = 10 bps / trade</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; margin-top:18px; position:relative;">
+      <span class="tag" style="top:-14px; right:0; left:auto;">C · ConfirmButton（unsupported 时禁用）</span>
+      <span class="btn primary" style="font-size:17px; padding:12px 26px;">✓ Confirm &amp; Run backtest</span>
+    </div>
+    <div style="position:absolute; bottom:8px; left:28px; font-size:11px; color:#999;">Not investment advice · Data: Binance via ccxt, Yahoo Finance</div>
+    <div class="legend"><span><i style="background:#e63946"></i>C 负责</span><span><i style="background:#1d6fe0"></i>D 负责</span></div>
+  </div>
+</div>
+
+<!-- ========================= SCREEN 2 : RESULTS ========================= -->
+<div class="screen" id="s2">
+  <div class="title-bar"><b>②</b> 结果页 Results — 评委盯着看最久的画面（D 优先打磨；虚线框 = P1）</div>
+  <div class="app">
+    <div class="nav">
+      <div class="logo">VibeTrader <span>Buy the dip (z-score) · BTC · 1d</span></div>
+    </div>
+
+    <!-- progress -->
+    <div class="box" style="padding:10px 18px; display:flex; gap:26px; font-size:14px; align-items:center;">
+      <div class="tag">C · ProgressStepper 运行进度（定时器推进）</div>
+      <span class="green">✓ Generate code</span><span class="green">✓ Sandbox run</span><span class="green">✓ Look-ahead test</span><span class="green">✓ Backtest</span><span class="green">✓ Audit</span>
+      <span style="margin-left:auto; color:#888;">done in 23s</span>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1.55fr 1fr; gap:20px; margin-top:22px;">
+      <!-- LEFT: chart + metrics -->
+      <div>
+        <div class="box" style="padding:14px 16px; height:300px;">
+          <div class="tag d">D · EquityChart 收益曲线（Recharts）</div>
+          <div style="display:flex; justify-content:space-between;"><div class="label">Equity curve</div>
+            <div style="font-size:12px;"><span style="color:#111; font-weight:700;">━ Strategy</span> &nbsp; <span style="color:#999; font-weight:700;">┅ Buy &amp; hold</span></div></div>
+          <svg id="chart" width="100%" height="240" viewBox="0 0 700 240"></svg>
+        </div>
+
+        <div class="box" style="padding:14px 16px; margin-top:22px;">
+          <div class="tag d">D · MetricsTable 样本内 vs 样本外</div>
+          <table style="width:100%; border-collapse:collapse; font-size:15px;">
+            <tr style="color:#888; font-size:12px; text-transform:uppercase; letter-spacing:1px;"><td style="padding:4px 0;">Metric</td><td>In-sample</td><td>Out-of-sample</td></tr>
+            <tr><td style="padding:5px 0;">Sharpe</td><td><b>2.10</b></td><td><b class="red">0.12 ↓</b></td></tr>
+            <tr><td style="padding:5px 0;">CAGR</td><td>45%</td><td class="red">2%</td></tr>
+            <tr><td style="padding:5px 0;">Max drawdown</td><td>−12%</td><td class="red">−30%</td></tr>
+            <tr><td style="padding:5px 0;">Trades</td><td>40</td><td>15</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT: verdict + audit -->
+      <div>
+        <div class="box bg-red" style="padding:16px 18px; display:flex; align-items:center; gap:18px; height:120px;">
+          <div class="tag d">D · VerdictBadge（左侧 TrustScore 环 = P1）</div>
+          <div style="width:84px; height:84px; border-radius:50%; border:9px dashed #d62828; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:800; opacity:0.45;" class="red">32</div>
+          <div><div style="font-size:30px; font-weight:800;" class="red">❌ No edge</div><div style="font-size:13px; color:#555;">No evidence this beats buy &amp; hold after fees.</div></div>
+        </div>
+
+        <div class="box" style="padding:14px 16px; margin-top:22px;">
+          <div class="tag d">D · AuditCard 审计（产品卖点）</div>
+          <div class="label">Audit</div>
+          <div style="font-size:14px; line-height:1.6; padding:8px 10px; background:#fff6d6; border-radius:6px;">
+            <b>⚠→✓ Look-ahead leak found &amp; fixed</b> (2 attempts)<br>
+            <span style="color:#666;">Original code used the full-history mean — future data.</span>
+          </div>
+          <div style="font-size:14px; margin-top:12px;"><b>Out-of-sample Sharpe · 95% CI</b></div>
+          <svg width="100%" height="58" viewBox="0 0 360 58">
+            <line x1="20" y1="30" x2="340" y2="30" stroke="#ccc" stroke-width="2"/>
+            <line x1="150" y1="10" x2="150" y2="50" stroke="#111" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="150" y="8" font-size="11" text-anchor="middle" fill="#111">0</text>
+            <line x1="86" y1="30" x2="246" y2="30" stroke="#d62828" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="166" cy="30" r="7" fill="#fff" stroke="#d62828" stroke-width="3"/>
+            <text x="86" y="54" font-size="11" text-anchor="middle" fill="#d62828">−0.4</text>
+            <text x="246" y="54" font-size="11" text-anchor="middle" fill="#d62828">0.6</text>
+          </svg>
+          <div style="font-size:12px; color:#666;">Interval crosses 0 → can't distinguish from luck.</div>
+          <div style="font-size:14px; margin-top:10px;">✓ Fees 10 bps applied &nbsp; ✓ 70/30 split</div>
+        </div>
+
+        <div class="box" style="padding:10px 16px; margin-top:22px; display:flex; justify-content:space-between; align-items:center;">
+          <div class="tag d">D · CodePanel 生成的代码（折叠）</div>
+          <span style="font-family:monospace; font-size:13px; color:#555;">def signals(df) -&gt; pd.Series: …</span><span style="font-size:13px;">▸ Show code</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- refine (P1) -->
+    <div class="box p1" style="margin-top:22px; padding:12px 16px; display:flex; gap:12px; align-items:center;">
+      <div class="tag" style="background:#888;">P1 · RefineInput（新结果直接替换旧结果，无版本切换）</div>
+      <div style="flex:1; border:2px solid #ddd; border-radius:8px; padding:9px 12px; color:#aaa; font-size:15px;">Refine: “only trade when price is above the 200-day average” …</div>
+      <span class="btn primary" style="opacity:0.45;">Refine →</span>
+    </div>
+    <div style="position:absolute; bottom:8px; left:28px; font-size:11px; color:#999;">Not investment advice · Data: Binance via ccxt, Yahoo Finance</div>
+    <div class="legend"><span><i style="background:#e63946"></i>C 负责</span><span><i style="background:#1d6fe0"></i>D 负责</span><span><i class="dash"></i>P1（有时间再做）</span></div>
+  </div>
+</div>
+
+<script>
+// deterministic pseudo-random
+let seed = 7; function rnd(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+// equity chart
+(function(){
+  const svg = document.getElementById('chart'), W = 700, H = 240, N = 140, split = 98;
+  let s = 1, b = 1; const S = [], B = [];
+  for (let i = 0; i < N; i++) {
+    const m = (rnd() - 0.47) * 0.06;
+    b *= 1 + m;
+    s *= 1 + (i < split ? Math.abs(m) * 0.9 + 0.004 : m * 0.8 - 0.002);
+    S.push(s); B.push(b);
+  }
+  const all = S.concat(B), mx = Math.max(...all), mn = Math.min(...all);
+  const x = i => 30 + i * (W - 40) / (N - 1), y = v => H - 22 - (v - mn) / (mx - mn) * (H - 40);
+  const path = arr => arr.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+  svg.innerHTML =
+    `<rect x="${x(split)}" y="0" width="${W - 10 - x(split)}" height="${H - 18}" fill="#f2f2f5"/>` +
+    `<line x1="${x(split)}" y1="0" x2="${x(split)}" y2="${H - 18}" stroke="#888" stroke-dasharray="5 4"/>` +
+    `<text x="${x(split) - 8}" y="16" font-size="12" text-anchor="end" fill="#666">IN-SAMPLE</text>` +
+    `<text x="${x(split) + 8}" y="16" font-size="12" fill="#666">OUT-OF-SAMPLE</text>` +
+    `<line x1="30" y1="${H - 18}" x2="${W - 10}" y2="${H - 18}" stroke="#ccc"/>` +
+    `<path d="${path(B)}" fill="none" stroke="#aaa" stroke-width="2.5" stroke-dasharray="6 4"/>` +
+    `<path d="${path(S)}" fill="none" stroke="#111" stroke-width="3"/>` +
+    `<text x="30" y="${H - 4}" font-size="11" fill="#999">2021</text><text x="${W - 10}" y="${H - 4}" font-size="11" text-anchor="end" fill="#999">2026</text>`;
+})();
+</script>
+</body>
+</html>
