@@ -19,13 +19,13 @@ streams their progress live → returns a **verified two-level portfolio**:
 
 | `AgentId`      | Model           | Job |
 |----------------|-----------------|-----|
-| `DISCOVERY`    | Gemini 3.8 Flash | Finds candidate stocks + crypto (Google Search grounding) |
-| `FINANCIALS`   | Gemini 3.8 Flash | Scores each stock 1–10 from real statements (code execution) |
-| `LANDSCAPE`    | Gemini 3.8 Flash | Competitors / market position (Search grounding) |
-| `NEWS`         | Gemini 3.8 Flash | Recent news per holding (Search grounding) |
-| `SOCIAL`       | Gemini 3.8 Flash | Reddit/X sentiment (Search grounding) |
-| `ORCHESTRATOR` | Gemini 3.1 Pro   | Builds the allocation from all findings |
-| `VERIFIER`     | Gemini 3.1 Pro   | Runs backtest in Gemini sandbox, cross-checks numbers, approves/rejects |
+| `DISCOVERY`    | Gemini 3.8 Flash (`gemini-3.8-flash`) | Finds candidate stocks + crypto (Google Search grounding) |
+| `FINANCIALS`   | Gemini 3.8 Flash (`gemini-3.8-flash`) | Scores each stock 1–10 from real statements (code execution) |
+| `LANDSCAPE`    | Gemini 3.8 Flash (`gemini-3.8-flash`) | Competitors / market position (Search grounding) |
+| `NEWS`         | Gemini 3.8 Flash (`gemini-3.8-flash`) | Recent news per holding (Search grounding) |
+| `SOCIAL`       | Gemini 3.8 Flash (`gemini-3.8-flash`) | Reddit/X sentiment (Search grounding) |
+| `ORCHESTRATOR` | Gemini 4 Argon (`gemini-4-argon`) | Builds the allocation from all findings |
+| `VERIFIER`     | Gemini 4 Argon (`gemini-4-argon`) | Runs backtest in Gemini sandbox, cross-checks numbers, approves/rejects |
 
 Order: `DISCOVERY` first → `FINANCIALS`, `LANDSCAPE`, `NEWS`, `SOCIAL` **in parallel** →
 `ORCHESTRATOR` → `VERIFIER` → (if rejected) `ORCHESTRATOR` → `VERIFIER` again. Max 2 rounds.
