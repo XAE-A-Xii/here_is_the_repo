@@ -57,7 +57,7 @@ Builds all 4 endpoints. A fake pipeline replays `fixtures/report.example.json` a
 - [ ] `POST /api/runs` returns 202 `Run`. A bad intake returns 422 `VALIDATION_ERROR` with a `{field: msg}` map.
 - [ ] `GET /api/runs/{id}/events` streams named events with `id: runId:seq`, replays from `Last-Event-ID`, and closes after `run.completed`.
 - [ ] Unknown run → 404 `RUN_NOT_FOUND`. A second concurrent run → 429 `RATE_LIMITED`.
-- Verify: run `curl -N` against the stream and see the full event sequence. Then point the vibe-trading frontend `/api` proxy at it.
+- Verify: run `curl -N` against the stream and see the full event sequence. Then point the Next.js frontend's `NEXT_PUBLIC_BACKEND_URL` at it. CORS is enabled.
 - Files: `main.py`, `models.py`, `pipeline.py` (fake), `pyproject.toml`
 
 **Task 2: Deploy to Cloud Run** · S

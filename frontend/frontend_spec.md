@@ -1,3 +1,7 @@
+> ⚠️ **API and product changed.** Use [`../docs/API_CONTRACT.md`](../docs/API_CONTRACT.md) for the product, types, endpoints and screens.
+> Still valid from this file: §1 stack and setup (Next.js, Tailwind, shadcn, Recharts), §8 visual style, light theme, and "reliability beats features".
+> Ignore: §3 types, §4 API client, §5 pages, §6 presets, §7 mocks, and the `/py/*` rewrite. Use `NEXT_PUBLIC_BACKEND_URL` directly.
+
 # VibeTrader — Frontend Spec (hand-off for coding agent)
 
 > Attached: `wireframes.html` — two screens, ① Build and ② Results. Open it in a browser and screenshot it if you need images.

@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED.** The backend implements [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) instead
+> (a multi-agent portfolio builder with SSE). Don't build against `/py/parse` or `/py/run`. This file is kept for history only.
+
 # VibeTrader API Specification (MVP Finalized)
 
 > **Version**: `2.0.0-mvp` (Aligned with `frontend/frontend_spec.md` & `frontend/wireframes.html`)  

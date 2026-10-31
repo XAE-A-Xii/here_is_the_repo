@@ -1,6 +1,7 @@
 # Portfolio Research API — Contract v1
 
-> **Audience:** frontend teammates and their coding agents. This file is the source of truth.
+> **Audience:** frontend teammates and their coding agents. **This file is the source of truth and supersedes `API_SPECIFICATION.md`** (`/py/parse`, `/py/run` are gone).
+> Frontend stack stays as in `frontend/frontend_spec.md` (Next.js + Tailwind + shadcn + Recharts, light theme). Only the API, types and screens change.
 > Backend implements exactly this. Changes are **additive only** (new optional fields / new event types);
 > nothing here gets renamed or removed without a heads-up in the team chat.
 
@@ -34,8 +35,16 @@ Order: `DISCOVERY` first → `FINANCIALS`, `LANDSCAPE`, `NEWS`, `SOCIAL` **in pa
 
 ## Endpoints
 
-Base path: `/api`. In Vite dev, add `"/api"` to `PROXY_PATHS` in `vite.config.ts`.
-Production base URL comes from `VITE_API_BASE_URL` (Cloud Run URL, shared in team chat).
+Base path: `/api`. Backend sends CORS headers for any origin, so the frontend calls it **directly**:
+
+```
+# web/.env.local
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000   # later: Cloud Run URL from team chat
+NEXT_PUBLIC_USE_MOCK=true                       # true until backend is live → use fixtures/report.example.json
+```
+
+Call `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/...`. Don't go through a Next.js `rewrites()` proxy for
+the SSE stream, because proxies can buffer it and the agents' progress would arrive all at once.
 
 ### `POST /api/runs` — start a run
 
@@ -51,7 +60,7 @@ Content-Type: application/json
 ### `GET /api/runs/{runId}/events` — live stream (SSE)
 
 `text/event-stream`. Each message has:
-- `event:` = the event `type` (see `RunEvent` below) — use with `useSSE` named handlers.
+- `event:` = the event `type` (see `RunEvent` below) — subscribe with `new EventSource(url)` + `addEventListener(type, ...)` per type.
 - `id:` = `"{runId}:{seq}"` — supports `Last-Event-ID` reconnect; backend replays missed events.
 - `data:` = JSON of the event.
 
@@ -84,7 +93,7 @@ type ErrorCode = "VALIDATION_ERROR" | "RUN_NOT_FOUND" | "RATE_LIMITED" | "INTERN
 
 ---
 
-## Types (copy into `src/types/portfolio.ts`)
+## Types (copy into `web/lib/types.ts`, replacing the old VibeTrader types)
 
 ```ts
 // ---------- Input ----------
@@ -250,10 +259,16 @@ report page against it before the backend is live.
 
 ## UI notes for frontend agents
 
-- **Sunburst:** ECharts `type: "sunburst"` is already a dependency. Inner = `slices`, children = `holdings`, `value` = `weightPct`.
+Screens (one page, top to bottom, replacing wireframes ① and ②):
+1. **Intake**: amount (number), horizon (1–10 years), risk (3-way toggle: Conservative / Moderate / Aggressive), optional theme text, and a **Run** button. Show 422 `details` inline under each field.
+2. **Agents at work**: 7 agent lanes that animate live from the stream.
+3. **Results**: the two-level pie, a holdings table (symbol, %, $, scores, rationale), the round-1 → round-2 diff, the backtest chart and metrics, findings with sources, and the disclaimer.
+
+- **Two-level pie (Recharts):** two concentric `<Pie>`s in one `<PieChart>`. Inner `<Pie data={slices} dataKey="weightPct" outerRadius="45%">`; outer `<Pie data={slices.flatMap(s => s.holdings)} dataKey="weightPct" innerRadius="50%" outerRadius="80%">`. Holdings are already ordered by slice, so they line up with their parent class. Colour holdings as shades of their class colour.
 - **Agent lanes:** one card per `AgentId`, states `idle → running → done | failed` driven by `agent.*` events; show latest `agent.progress.message`; findings append live.
 - **Round diff:** when `rounds.length === 2`, show round-1 sunburst greyed with the Verifier's `changesRequested`, then round 2. This is the money shot.
 - **Evidence:** clicking a holding shows its `rationale` + `findingIds` → findings with source links.
 - **Backtest:** line chart of `equityCurve` (4 series) + metrics table; show `crossCheck.isMatch` as a "✓ Verified" badge.
-- Reuse `src/hooks/useSSE.ts` for the stream.
+- **Stream:** native `EventSource`. Handle `onerror` by falling back to polling `GET /api/runs/{runId}` every 3 s.
+- **Mock mode:** with `NEXT_PUBLIC_USE_MOCK=true`, replay the fixture's `rounds` on a timer so the agent lanes, round-1 rejection and round-2 approval all animate. The demo has to work with the backend off.
 - All numbers arrive pre-rounded (1 decimal for %, 2 for sharpe). Don't recompute weights client-side.
